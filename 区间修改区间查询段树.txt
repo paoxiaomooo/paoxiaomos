@@ -1,0 +1,59 @@
+int a[maxn];
+int sum[maxn<<2],exc[maxn<<2];
+void maintain(int k)
+{
+    sum[k]=sum[k<<1]+sum[k<<1|1];
+}
+void pushdown(int lenl,int lenr,int k)//标记下放，并更细节点信息
+{
+    if(exc[k]){
+        exc[k<<1]=exc[k];
+        exc[k<<1|1]=exc[k];
+        sum[k<<1]=exc[k]*lenl;
+        sum[k<<1|1]=exc[k]*lenr;
+        exc[k]=0;
+    }
+}
+void build(int l,int r,int k)
+{
+    if(l>r)
+        return ;
+    if(l==r){
+        sum[k]=a[l];
+        exc[k]=0;
+        return ;
+    }
+    int mid=(l+r)>>1;
+    build(l,mid,k<<1);
+    build(mid+1,r,k<<1|1);
+    maintain(k);
+}
+void change(int l,int r,int cl,int cr,int k,int newp)
+{
+    if(l>r||cl>r||cr<l)
+        return ;
+    if(l>=cl&&r<=cr){
+        sum[k]=newp*(r-l+1);//在发现现在区域小于需要更新区域时
+        exc[k]=newp;//更新节点的结果，并增加延迟标记exc，用于之后的标记下放
+        return ;
+    }
+    int mid=(l+r)>>1;
+    pushdown(mid-l+1,r-mid,k);
+    change(l,mid,cl,cr,k<<1,newp);
+    change(mid+1,r,cl,cr,k<<1|1,newp);
+    maintain(k);
+}
+int query(int l,int r,int ql,int qr,int k)
+{
+    if(l>r||ql>r||qr<l)
+        return 0;
+    if(l>=ql&&r<=qr)
+        return sum[k];
+    int mid=(l+r)>>1,ans=0;
+    pushdown(mid-l+1,r-mid,k);//每一层询问执行到这一步，为了下一次递归更新叶节点信息
+    if(mid>=l)
+        ans+=query(l,mid,ql,qr,k<<1);
+    if(mid<r)
+        ans+=query(mid+1,r,ql,qr,k<<1|1);
+    return ans;
+}

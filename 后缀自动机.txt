@@ -1,0 +1,40 @@
+struct SuffixAutomaton {
+	struct node {
+		int ch[26],fa,len,cnt;
+		void clean() {
+			memset(ch,0,sizeof(ch));
+			fa = len = cnt = 0;
+		}
+	} S[maxn<<1];
+	int root,last,siz;
+
+	void init() {
+		for(int i = 1; i <= siz; i++)
+			S[i].clean();
+		root = last = siz = 1;
+	}
+
+	void insert(int c) {
+		int p = last, now = ++siz;
+		S[now].cnt = 1;
+		S[now].len = S[p].len+1;
+		for(; p && !S[p].ch[c]; p = S[p].fa)
+			S[p].ch[c] = now;
+		if(!p) S[now].fa = root;
+		else {
+			int q = S[p].ch[c];
+			if(S[q].len == S[p].len+1)
+				S[now].fa = q;
+			else {
+				int q_new = ++siz;
+				S[q_new] = S[q];
+				S[q_new].cnt = 0;
+				S[q_new].len = S[p].len+1;
+				S[now].fa = S[q].fa = q_new;
+				for(; p && S[p].ch[c] == q; p = S[p].fa)
+					S[p].ch[c] = q_new;
+			}
+		}
+		last = now;
+	}
+} SAM;

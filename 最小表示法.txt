@@ -1,0 +1,19 @@
+int zxbsf(int n)//数组s从0开始
+{
+    int i = 0, j = 1, k = 0;
+    while (i < n && j < n)
+    {
+        k = 0;
+        while (s[(i + k) % n] == s[(j + k) % n] && k < n)
+            k++;
+        if (k == n)
+            return min(i, j);
+        if (s[(i + k) % n] > s[(j + k) % n])
+            i = i + k + 1;
+        else
+            j = j + k + 1;
+        if (i == j)
+            j++;
+    }
+    return min(i, j);
+}
